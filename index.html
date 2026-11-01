@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3ede2">
+  <meta name="description" content="A little crochet studio. Write a pattern, choose your yarn and follow every stitch.">
+  <title>Loop | Crochet studio</title>
+  <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="yarn-profile.js"></script>
+  <script defer src="physics.js"></script>
+  <script defer src="yarn.js"></script>
+  <script defer src="mesh-core.js"></script>
+  <script defer src="yarn-batches.js"></script>
+  <script defer src="renderer.js"></script>
+  <script defer src="language-reference.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body data-mobile-pane="preview">
+  <header class="app-header">
+    <a class="brand" href="./" aria-label="Loop home">
+      <img src="assets/loop-mark.png" width="42" height="42" alt="" aria-hidden="true">
+      <span>loop</span>
+    </a>
+    <nav class="header-actions" aria-label="Project">
+      <button id="import-button" class="quiet" title="Open a saved project or text pattern">Open</button>
+      <button id="save-pattern" class="quiet" title="Save your pattern and yarn settings">Save</button>
+      <button id="export-image" class="quiet" title="Save the current view as an image"><span class="wide-label">Save image</span><span class="compact-label">Image</span></button>
+      <button id="help" class="guide-button"><span class="wide-label">Pattern guide</span><span class="compact-label">Guide</span></button>
+      <a id="github-link" class="quiet" href="https://github.com/whickmott/loop" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </header>
+  <nav class="mobile-tabs" aria-label="Choose a panel">
+    <button data-pane="pattern" aria-pressed="false" aria-controls="pattern-panel">Pattern &amp; yarn</button>
+    <button data-pane="preview" aria-pressed="true" aria-controls="preview-panel">Your crochet</button>
+  </nav>
+  <main class="workspace">
+    <aside id="pattern-panel" class="pattern-panel" aria-label="Pattern and yarn settings" tabindex="0">
+      <div class="panel-heading"><h1>Your pattern</h1></div>
+      <label class="field-label" for="example">Try a pattern</label>
+      <select id="example" aria-describedby="example-description"><option value="" disabled>Choose an example</option></select>
+      <p id="example-description" class="example-description" hidden></p>
+      <div class="editor-heading"><label class="field-label" for="pattern">Pattern notes</label><select id="terminology" aria-label="Crochet terminology"><option value="US">US terms</option><option value="UK">UK terms</option></select></div>
+      <div class="editor-wrap"><div id="line-numbers" aria-hidden="true"></div><textarea id="pattern" spellcheck="false" aria-label="Crochet pattern" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea></div>
+      <div class="editor-foot"><span>TURN or JOIN ends a row</span><kbd>Ctrl + Enter</kbd></div>
+      <button id="generate" class="primary">Preview pattern</button>
+      <div id="diagnostics" role="status" aria-live="polite"></div>
+      <div class="yarn-heading"><h2>Yarn &amp; hook</h2><button id="reset-yarn" class="text-button">Reset yarn</button></div>
+      <div class="yarn-controls">
+        <div class="thread-colour"><label for="yarn-colour">Main colour</label><input type="color" id="yarn-colour" value="#718e80"><input type="text" id="main-colour-hex" value="#718E80" maxlength="7" aria-label="Main yarn colour hex code" spellcheck="false"></div>
+        <label class="check marling-toggle"><input id="marled" type="checkbox"> Add a second strand</label>
+        <div class="thread-colour" id="second-thread"><label for="second-colour">Second colour</label><input type="color" id="second-colour" value="#e6d6ba"><input type="text" id="second-colour-hex" value="#E6D6BA" maxlength="7" aria-label="Second yarn colour hex code" spellcheck="false"></div>
+        <div class="material-fields"><label for="yarn-weight">Yarn weight<select id="yarn-weight"></select></label><label for="hook-size">Hook size (mm)<input id="hook-size" type="number" min="0.5" max="30" step="0.25" value="4"></label></div>
+        <label class="check match-hook"><input id="auto-hook" type="checkbox" checked> Match hook to yarn weight</label>
+        <p id="material-summary" class="material-summary"></p>
+        <label class="simple-tension" for="tension">Tension<select id="tension"><option value="85">Relaxed</option><option value="100" selected>Normal</option><option value="115">Firm</option></select></label>
+        <details class="gauge-controls"><summary>Yarn diameter &amp; measured gauge</summary><label class="numeric-label" for="strand-diameter">Strand diameter (mm)<input type="number" id="strand-diameter" min="0.15" max="20" step="0.05" value="1.65"></label><p class="field-note">Weight categories vary. Adjust this estimate for your yarn.</p><label class="check"><input type="checkbox" id="use-gauge"> Use a measured SC / UK DC swatch</label><div class="material-fields"><label for="gauge-stitches">Stitches per 10 cm<input id="gauge-stitches" type="number" min="2" max="100" step="0.5" value="20"></label><label for="gauge-rows">Rows per 10 cm<input id="gauge-rows" type="number" min="2" max="150" step="0.5" value="22"></label></div><p class="field-note">Measured gauge sets the stitch spacing and row height.</p></details>
+      </div>
+    </aside>
+    <section id="preview-panel" class="preview-panel" aria-label="Your crochet">
+      <div class="preview-toolbar"><h2 id="preview-title">Your crochet</h2><div class="view-controls" aria-label="Camera view"><button class="view active" data-view="angle" aria-pressed="true">3D</button><button class="view" data-view="front" aria-pressed="false">Front</button><button class="view" data-view="back" aria-pressed="false">Back</button><button class="view" data-view="edge" aria-pressed="false">Edge</button><button id="fit" class="view" title="Fit crochet in view">Fit</button></div></div>
+      <div class="fabric-stage">
+        <div id="viewport" tabindex="0" aria-label="Interactive crochet. Drag to rotate, scroll to zoom, Shift-drag to pan. Click a stitch to inspect it."><div id="loading"><span id="loading-message">Making your crochet…</span></div><button id="cancel-build" hidden>Cancel</button></div>
+        <div class="preview-stats"><span id="mesh-stats"></span><span id="piece-size"></span></div>
+        <p class="camera-hint">Drag to turn · Scroll to zoom · Shift + drag to move</p>
+      </div>
+      <section id="timeline-panel" class="timeline" aria-label="Follow the pattern">
+        <div class="timeline-heading"><h2><button id="toggle-timeline" aria-expanded="true" aria-controls="timeline-content" aria-label="Hide Follow the pattern panel"><span>Follow the pattern</span><span id="timeline-toggle-label" class="panel-visibility">Hide</span></button></h2><button id="show-all" class="text-button">Finished piece</button></div>
+        <div id="timeline-content">
+        <div class="playback">
+          <div class="transport-controls"><button id="previous" class="step-button" aria-label="Previous stitch">Previous</button><button id="play" class="play-button" aria-label="Play construction">Play</button><button id="next" class="step-button" aria-label="Next stitch">Next</button></div>
+          <div class="yarn-seek"><div class="yarn-track" aria-hidden="true"></div><input id="progress" type="range" min="0" max="100" step="1" value="100" aria-label="Construction progress"></div>
+          <div class="playback-meta"><output id="progress-label" for="progress">0 / 0</output><select id="speed" aria-label="Playback speed"><option value="2">Slow</option><option value="6" selected>Normal</option><option value="15">Fast</option></select></div>
+        </div>
+        <div class="stitch-detail"><div id="stitch-label">Finished piece</div><p id="stitch-description">Choose a stitch to see how it joins the fabric.</p></div>
+        <div class="playback-options"><label class="check"><input id="show-future" type="checkbox"> Show remaining stitches</label><label class="check"><input id="show-target" type="checkbox" checked> Show insertion point</label></div>
+        <div id="row-list" aria-label="Pattern rows"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <input type="file" id="file-input" accept=".txt,.crochet,.json" hidden>
+  <dialog id="help-dialog">
+    <div class="dialog-header"><h2>Pattern guide</h2><button id="close-help" class="quiet" aria-label="Close help">Close</button></div>
+    <div id="language-reference"></div>
+  </dialog>
+  <noscript>Enable JavaScript to use Loop.</noscript>
+</body>
+</html>
